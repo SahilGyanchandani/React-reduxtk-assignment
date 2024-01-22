@@ -2,14 +2,14 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 type InitialState = {
     fullName: string
-    birthDate: Date | null
+    birthDate:string
     department: any
     experience: number
 }
 
 const initialState: InitialState = {
     fullName: '',
-    birthDate: null,
+    birthDate: '',
     department: '',
     experience: 0
 }
