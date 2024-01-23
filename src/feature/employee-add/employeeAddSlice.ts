@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 type InitialState = {
     fullName: string
-    birthDate:string
+    birthDate: string
     department: any
     experience: number
 }
@@ -13,6 +13,7 @@ const initialState: InitialState = {
     department: '',
     experience: 0
 }
+
 
 const employeeSlice = createSlice({
     name: 'employeeAdd',
