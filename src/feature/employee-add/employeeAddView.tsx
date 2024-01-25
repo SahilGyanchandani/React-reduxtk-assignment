@@ -1,23 +1,30 @@
-import { useState } from "react"
+import { ChangeEvent, useState } from "react";
 import { addEmployee } from "./employeeAddSlice";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppDispatch } from "../../app/hooks";
+import { useNavigate } from "react-router-dom";
 
-
+// Define the EmployeeAddView component
 export default function EmployeeAddView() {
+    // Access the dispatch and navigate functions from React hooks
     const dispatch = useAppDispatch();
-    const [employeeData, setEmployeeData] = useState({  fullName: "", birthDate: "", department: "", experience: 0 })
+    const navigate = useNavigate();
 
+    // State variables to manage employee data and error message
+    const [employeeData, setEmployeeData] = useState({ fullName: "", birthDate: "", department: "", experience: 0 });
+    const [error, setError] = useState('');
 
+    // Function to handle the addition of a new employee
     function handleAddEmployee() {
-
+        // Dispatch the addEmployee action with the current employeeData
         dispatch(addEmployee(employeeData));
 
-        // save employeeData to localStorage
+        // Retrieve existing employeeData from localStorage or initialize an empty array
         const storedEmployeeData = JSON.parse(localStorage.getItem("employees") || "[]");
-        localStorage.setItem("employees", JSON.stringify([...storedEmployeeData, employeeData]))
 
+        // Update localStorage with the new employeeData
+        localStorage.setItem("employees", JSON.stringify([...storedEmployeeData, employeeData]));
 
-        //clear the form after submission
+        // Clear the form after submission
         setEmployeeData({
             fullName: "",
             birthDate: "",
@@ -25,10 +32,31 @@ export default function EmployeeAddView() {
             experience: 0,
         });
     }
+
+    // Function to handle changes in the Full Name input
+    function handleFullName(e: ChangeEvent<HTMLInputElement>) {
+        const input = e.target.value;
+
+        // Regular expression to allow only letters A-Z and spaces in the input
+        const onlyLetters = /^[A-Za-z ]+$/;
+
+        // Regular expression to identify invalid characters
+        const invalidCharacter = /[0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+
+        // Validate input against regular expressions and update state
+        if (onlyLetters.test(input) && !invalidCharacter.test(input) || input === '') {
+            setEmployeeData({ ...employeeData, fullName: input });
+            setError('');
+        } else {
+            setError('Allow only letters (A-Z)');
+        }
+    }
+
     return (
         <div className="container mt-5">
             <h2 className="mb-4">Add Employee</h2>
             <form>
+                {/* Input field for Full Name */}
                 <div className="mb-3">
                     <label className="form-label">Full Name:</label>
                     <input
@@ -37,10 +65,14 @@ export default function EmployeeAddView() {
                         name="fullName"
                         placeholder="Enter Full Name"
                         value={employeeData.fullName}
-                        onChange={(e) => setEmployeeData({ ...employeeData, fullName: e.target.value })}
+                        onInput={handleFullName}  // Use onInput event for real-time input validation
                     />
                 </div>
 
+                {/* Display error message if there is an error */}
+                {error && <div className="text-danger">{error}</div>}
+
+                {/* Additional input fields for Birth Date, Department, and Experience */}
                 <div className="mb-3">
                     <label className="form-label">Birth Date:</label>
                     <input
@@ -48,10 +80,9 @@ export default function EmployeeAddView() {
                         className="form-control"
                         name="birthDate"
                         value={employeeData.birthDate}
-                        onChange={(e) => setEmployeeData({ ...employeeData, birthDate: (e.target.value) })}
+                        onChange={(e) => setEmployeeData({ ...employeeData, birthDate: e.target.value })}
                     />
                 </div>
-
 
                 <div className="mb-3">
                     <label className="form-label">Department:</label>
@@ -77,8 +108,16 @@ export default function EmployeeAddView() {
                     />
                 </div>
 
+                {/* Button to add a new employee */}
                 <button type="button" className="btn btn-primary" onClick={handleAddEmployee}>
                     Add Employee
+                </button>
+
+                <hr />
+
+                {/* Button to navigate back to the employee list */}
+                <button type="button" className="btn btn-primary" onClick={() => navigate('/')}>
+                    Back
                 </button>
             </form>
         </div>
